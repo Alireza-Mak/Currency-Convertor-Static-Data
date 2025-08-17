@@ -1,6 +1,8 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace Currency_Convertor_Static_Data
@@ -31,12 +33,13 @@ namespace Currency_Convertor_Static_Data
             //Add value column in DataTable
             dtCurrency.Columns.Add("Value");
             dtCurrency.Rows.Add("--SELECT--", 0);
-            dtCurrency.Rows.Add("INR", 1);
-            dtCurrency.Rows.Add("USD", 75);
-            dtCurrency.Rows.Add("EUR", 85);
-            dtCurrency.Rows.Add("SAR", 20);
-            dtCurrency.Rows.Add("POUND", 5);
-            dtCurrency.Rows.Add("DEM", 43);
+            dtCurrency.Rows.Add("INR", 87.52);
+            dtCurrency.Rows.Add("USD", 1);
+            dtCurrency.Rows.Add("EUR", 0.86);
+            dtCurrency.Rows.Add("SAR", 3.75);
+            dtCurrency.Rows.Add("GBP", 0.74);
+            dtCurrency.Rows.Add("AUD", 1.53);
+            dtCurrency.Rows.Add("CAD", 1.38);
 
             //The data to currency ComboBox is assigned from DataTable
             cmbFromCurrency.ItemsSource = dtCurrency.DefaultView;
@@ -78,9 +81,10 @@ namespace Currency_Convertor_Static_Data
         /// <param name="e"></param>
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
-            Regex regex = new Regex("[^0-9]+");
+            Regex regex = new Regex("[^0-9.]+");
             e.Handled = regex.IsMatch(e.Text);
         }
+
 
         /// <summary>
         /// This method is used to handle the click event of the Clear button, which clears all controls in the UI.
@@ -146,13 +150,61 @@ namespace Currency_Convertor_Static_Data
             }
             else
             {
-                //Calculation for currency converter is From Currency value multiply(*) 
-                // with amount textbox value and then the total is divided(/) with To Currency value
-                ConvertedValue = (double.Parse(cmbFromCurrency.SelectedValue.ToString()) * double.Parse(txtCurrency.Text)) / double.Parse(cmbToCurrency.SelectedValue.ToString());
+                //Calculation for currency converter is Tp Currency value multiply(*) 
+                // with amount textbox value and then the total is divided(/) with From Currency value
+                ConvertedValue = (double.Parse(cmbToCurrency.SelectedValue.ToString()) * double.Parse(txtCurrency.Text)) / double.Parse(cmbFromCurrency.SelectedValue.ToString());
 
                 //Show in label converted currency and converted currency name.
                 lblCurrency.Content = cmbToCurrency.Text + " " + ConvertedValue.ToString("N3");
             }
+        }
+
+        /// <summary>
+        ///  This method is used to handle the click event of the Swap button,
+        ///  which swaps the selected currencies in the combo boxes for currency conversion.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Swap_Click(object sender, RoutedEventArgs e)
+        {
+            if (cmbFromCurrency.Text == cmbToCurrency.Text)
+            {
+                Console.WriteLine(cmbFromCurrency.Text);
+                Console.WriteLine(cmbToCurrency.Text);
+                return;
+            }
+            (cmbFromCurrency.SelectedIndex, cmbToCurrency.SelectedIndex) = (cmbToCurrency.SelectedIndex, cmbFromCurrency.SelectedIndex);
+        }
+
+        /// <summary>
+        /// This method is used to handle the text changed event of the currency input text box,
+        /// formatting the input to include grouping separators for better readability.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnInputTextChanged(object sender, TextChangedEventArgs e)
+        {
+
+            TextBox textBox = sender as TextBox;
+
+            // Remove commas for parsing
+            string raw = textBox.Text.Replace(",", "");
+
+            // Split into integer + decimal parts
+            string[] parts = raw.Split('.');
+            if (decimal.TryParse(raw, out decimal _))
+            {
+                string intPart = parts[0];
+                string decPart = parts.Length > 1 ? "." + parts[1] : "";
+
+                // Add grouping separators only to integer part
+                if (long.TryParse(intPart, out long intNumber))
+                    textBox.Text = intNumber.ToString("N0") + decPart;
+            }
+
+            // Put caret at the end
+            textBox.Focus();
+            textBox.SelectionStart = textBox.Text.Length;
         }
     }
 }
