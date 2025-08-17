@@ -88,11 +88,6 @@ For any questions or feedback, feel free to reach out:
 📧 **info@alirezamak.com**
 
 
-## Authors
-
-- [@Alireza-Mak](https://www.github.com/Alireza-Mak)
-
-
 ## 👤 Author
 
 **Alireza Mak**  
